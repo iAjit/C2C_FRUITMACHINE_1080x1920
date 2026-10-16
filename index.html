@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html><head><meta name="GCD" content="YTk3ODQ3ZWZhN2I4NzZmMzBkNTEwYjJle1458598074a3b69521e197192d0ffd1"/>
+<html><head><meta name="GCD" content="YTk3ODQ3ZWZhN2I4NzZmMzBkNTEwYjJl4edb68521b779277a5590fb6c4652dc1"/>
   <meta charset="utf-8">
   <meta name="generator" content="Google Web Designer 16.4.1.0826">
   <meta name="template" content="Banner 3.0.0">
@@ -265,6 +265,44 @@ a)}},videoWidth:{configurable:!0,enumerable:!0,get:function(){return this.g.vide
         console.error("Could not find element ID 'Video003' outside the function.");
       }
 
+
+      function checkFontsLoaded() {
+        const boldFont = '58px "FSAlbert-Bold"';
+        const regularFont = '58px "FSAlbert-Regular"';
+
+        // If the browser doesn't support the Font Loading API, pass immediately
+        if (!document.fonts) {
+          fontsLoaded = true;
+          console.log("Fonts not supported by browser.");
+          checkVideoRendered();
+          return;
+        }
+
+        // 1. Synchronous check: Are both 58px fonts active in memory?
+        if (document.fonts.check(boldFont) && document.fonts.check(regularFont)) {
+          console.log("58px FSAlbert fonts confirmed loaded directly.");
+          fontsLoaded = true;
+          checkVideoRendered();
+          return;
+        }
+
+        // 2. Direct request: Force browser to resolve both font faces at 58px directly
+        Promise.all([
+          document.fonts.load(boldFont),
+          document.fonts.load(regularFont),
+          document.fonts.ready
+        ]).then(function() {
+          console.log("58px FSAlbert fonts loaded and layout ready directly.");
+          fontsLoaded = true;
+          checkVideoRendered();
+        }).catch(function(err) {
+          console.warn("Font loading error:", err);
+          fontsLoaded = true;
+          checkVideoRendered();
+        });
+      }
+
+
       function checkVideoRendered() {
         console.log("Checking video rendered state...");
 
@@ -286,7 +324,7 @@ a)}},videoWidth:{configurable:!0,enumerable:!0,get:function(){return this.g.vide
             }
 
             videoElement.requestVideoFrameCallback((now, metadata) => {
-              console.log("Video first frame decoded & submitted to compositor.");
+              console.log("Video first frame decoded & submitted to compositor- readyState: " + videoElement.readyState);
               videoRendered = true;
               checkVioohReady();
             });
@@ -531,7 +569,8 @@ a)}},videoWidth:{configurable:!0,enumerable:!0,get:function(){return this.g.vide
               checkForFallbackImageLoaded();
             } else {
               //checkVioohReady();
-              checkVideoRendered();
+              //checkVideoRendered();
+              checkFontsLoaded();
             }
           }, 1);
         });
